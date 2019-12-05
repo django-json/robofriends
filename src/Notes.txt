@@ -1,0 +1,1107 @@
+Remember: 
+1. Object is not valid as a React child which means that if you want to render a collection of children, return the children elements one at a time using an array NOT an Object (which holds the children elements).
+
+* You can pass Objects as props but not as a React child metioned above.
+
+example: 
+Wrong:
+	const cardsArray = robots.map((user, i) => {
+		return <Card id={robots[i].id} name={robots[i].name} email={robots[i].email}/>
+	});
+	return(
+		{cardsArray}   //this is an object returned
+	);
+
+Correct:
+	return(
+		robots.map((user, i) => {       //using an array map function to return <Card /> children elements one at a time
+			return(
+				<Card 
+				key={robots[i].id}
+				id={robots[i].id} 
+				name={robots[i].name} 
+				email={robots[i].email}
+				/>
+			);
+		})
+	);
+2. If possible use ES6 syntax. If something doesn't print on the console, use this syntax.
+
+In Order Guide:
+
+---------------Organizing Components------------
+create a folder named "components"
+//store all the pure functions into this folder (e.g. Card.js)
+
+create a folder named "containers"
+//store all the smart objects into this folder (e.g. App.js)
+
+---------------Flux Principle-------------------
+action => reducer => store => make changes
+
+---------------Redux Installation---------------
+npm install redux 
+//to install redux in the project
+
+npm install react-redux
+//to install react-redux which enable smart object (app.js) to communicate with redux
+
+---------------Creating actions and reducers--------------
+create a file named actions.js
+//this is where we set our state
+
+create a file named constants.js
+//this is where all constant variables is stored which will be imported by actions.js
+
+---------------Redux Store and Provider----------------------
+1. Importing Provider Component
+import {Provider} from 'react-redux'
+//write this import statement to index.js file
+
+2. Creating the Redux Store
+import {createStore} from 'redux';
+//write this import statement to index.js file
+
+const store = createStore(searchRobots);
+//write this statement below below the import statements. This allows to create a Redux Store named store
+
+----------------Redux connect()-------------------
+//In order to communicate with redux to components, use connect() to smart components also called as container so App.js will be that container
+
+import { actions } from '../actions';
+//import all the actions exported in the actions.js file under App.js
+
+import { connect } from 'react-redux';
+//import connect() function in App.js file to use to connect redux to this container(smart object)
+
+export default connect()(App);
+//the export statement below should look like this from "export default App;"
+//connect() is a higher order function which means that it is a function that returns an another function
+//connect() accepts 2 arguments: mapStateToProps and mapDispatchToProps
+
+NOTE: How Redux Works Overall
+reducers => index.js => createStore (Pass it as a prop to the Provider in index.js) => use connect() to connect Provider to smart object(container) wherein the connect() function accepts 2 arguments: mapStateToProps and mapDispatchToProps. mapDispatchToProps triggers the actions.js and mapStateToProps set the supposedly state (e.g. this.state = {property: value}) to prop(s).
+
+-----Pointers------
+reducers.js =>
+index.js =>
+app.js [ connect(mapStateToProps, mapDispatchToProps) ] =>
+mapDispatchToProps <=> actions.js //mapDispatchToProps calls function under actions.js
+
+---------------Flux Principle Hidden Part (MiddleWare)-------------------
+action =>
+( Middleware [this is an invisible part which modify or trigger the action before it hits the reducer] => )reducer =>
+store =>
+make changes
+
+---------------Redux Logger---------------------
+npm install redux-logger
+//allows to log actions happening in the app
+
+import { createLogger } from 'redux-logger';
+//import createLogger
+
+import { applyMiddleware } from 'redux';
+//import applyMiddleware inorder to apply the middleware created using "createLogger"
+
+----------------Redux Async Actions------------------
+//this will allow requests from the API without delay when the browser loads the project
+
+npm install redux-thunk
+//this package will allow to use a middleware to help with the asynchronous actions
+//it is a middleware that provides a get state and dispatch that are passed on like connect() function
+
+import thunkMiddleware from 'thunk-redux';
+//import thunkMiddleware in index.js inorder to apply this middleware.
+//don't forget to apply this middleware in order applyMiddleware(thunkMiddleware, logger){}
+
+Process:
+1. Create a constants for the API requests
+	1.1. There are three states since this is a promise: Pending, Success, and Failed
+2. Import the new constants to action.js and reducers.js
+3. In action.js, create another function expression to dispatch the three states;
+	3.1. dispatch the Pending
+	3.2. fetch the data from the API then get the response using the then() function by chaining to the fetch() function
+	3.3. and chain the then() function again to get the data and dispatch the success state with the data
+	3.4. and chain the catch() function and dispatch the failed state with the error information
+4. In reducers.js, create a new function expression to handle the dispatched value from action.js
+5. Go to index.js and import the new reducer function
+
+import { combineReducers } from 'redux';
+//this will allow to combine reducers which accepts an object
+
+6. create a new variable named rootReducer below the import statements
+[e.g. const rootReducer = combineReducers({ reducerfunction1, reducerfunction2 });]
+
+//redux-thunk is a middleware that waits and sees if any actions return a function instead of an object
+//moreover in actions.js that function that will handle the promise should return a function that the redux-thunk will handle
+
+7. In App.js add the new state as props using the mapStateToProps function and add the higher level function(this is a function that returns another function) using the mapDispatchToProps function
+
+//Always rememer that mapStateToProps and mapDispatchToProps are functions that convert state to props
+
+
+
+*********************Another Topic  Section*************************
+How Client-Server Relationship Works Diagram
+
+
+				  (GET, POST, PUT, DELETE) Requests
+Browser(Client) ->>>>>>>>>>>>>> Http Request>>>>>>>>>>>> Google Server
+	^													       |
+	^														   |
+	<<<<<<<<<<<<<<<<<<<<<<<Response<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			(202, 304, 404, etc) Status Codes Reponses
+				  check w3schools for http messages
+
+Description:
+
+1. When the user search something on the browser it sends an http request with the message(which is what the user search for).
+2. The Server receives the request and send a http response to the Client(which is the browser) with a message(contains the information that the use ask for in a format called HTML) and with either 202 Response or other responses (w3schools for info).
+
+--------------GET REQUEST------------------
+will send an actual data to the server through "query string"
+(example: https://www.w3schools.com/%username=user1%password=secret%).
+'%username=user1%password=secret%' is the query string sent over to the server.
+
+--------------POST REQUEST-----------------
+will send an actual data to the server through "form data" 
+(example is in the browser->developer tools->network->headers)
+(in other words query string will be hidden in the url).
+
+//Note:
+The data sent to the server is not an ordinary text. There is a standard languages used to understand the data being sent namely: JSON and XML.
+
+JSON - JavaScript Object Notation
+     - is a syntax for storing and exchanging data 
+     -is text, written with JavaScript Object Notation 
+
+The data sent to the browser from the Server is in JSON Formal. 
+It needs to be converted from JSON to Javascript using built-in function:
+
+1. JSON.parse();
+
+example: var obj = JSON.parse('{"name":"John", "gender":"M"}');
+
+When sending data to the server it needs to be converted from JavaScript to JSON using another function:
+
+1. JSON.stringify();
+
+example: var myJSON = JSON.stringify(obj);
+
+---------------AJAX----------------
+-allow to request small chunks of data such as:
+html, xml, JSON, plain text and display them only when needed.
+
+-allows to read from the web server after the page has loaded and update a page without reloading the page and
+
+-sends data in the background while the user is interacting with the website.
+
+-allows web pages to change content dynamically.
+
+-is a combination of tools of using the fetch API, using HTTP, using JSON to communicate with servers.
+
+old way to achieve this is using:
+XMLHttpRequest();
+
+the new old way is using JQuery:
+$.getJSON('my/url', function(data){
+	
+});
+
+the latest way is:
+fetch('url').then(response => {
+	
+});
+
+fetch() has a function that converts JSON to JavaScript called:
+json();
+example: response.json(); //this will return a promise so it needs
+		to chain with then() function again to retrieve the JavaScript 
+		format of the data response from the server
+
+
+-------------Promise-------------
+- is an object that may produce a single value some time in the future either a resolved value, or a reason that it;s not resolved (rejected).
+
+Three possible states:
+1. fullfilled
+2. rejected
+3. pending
+
+example code:
+var urls = [
+	'https://jsonplaceholder.typicode.com/users',
+	'https://jsonplaceholder.typicode.com/posts',
+	'https://jsonplaceholder.typicode.com/albums'
+];
+Promise.all(urls.map(url => {
+	return fetch(url).then(resp => resp.json());
+})).then(values => {
+	console.log(values[0]);
+	console.log(values[1]);
+	console.log(values[2]);
+});
+
+---------------------Async-----------------------
+async is a new ES8 feature for fetch().then() as a syntactic sugar (a clean and pretty syntax).
+
+example code:
+const urls = [
+  'https://jsonplaceholder.typicode.com/users',
+  'https://jsonplaceholder.typicode.com/posts',
+  'https://jsonplaceholder.typicode.com/albums'
+];
+const getData = async function() {
+	try{
+	  const [ users, posts, albums ] = await Promise.all(urls.map(async function(url){
+	      const response = await fetch(url)
+	      return response.json()
+	  }));
+	  console.log('users', users);
+	  console.log('posta', posts);
+	  console.log('albums', albums);
+	}catch(error) {
+		console.log('ooooooops', error);
+	}
+}
+
+---------------Object Spread Operator-----------------
+new feature is ES8 the '...' operator
+
+example code: 
+
+let array = [1,2,3,4,5];
+function myArr(a, b, c, d, e) {
+	return a + b + c + d + e;
+}
+
+myArr(...array); //this is the same as myArr(1,2,3,4,5);
+
+another example:
+
+const animals = {
+	tiger: 'haley',
+	monkey: 'benny',
+	lion: 'tim',
+	fish: 'koy'
+};
+
+const { tiger, monkey, ...others } = animals;
+
+//this will assign the values of animals.tiger to tiger, animals.monkey to monkey and
+//{ lion: 'tim', fish: 'koy' } to others
+
+----------------finally() in ES9(ES2018)---------------
+One of the uses of finally block is to ensure that it will run a piece of code no matter what the result may be like sending an email to notify that the process is successful.
+
+fetch().then().catch().finally();
+
+----------------for await of in ES9(ES2018)------------------
+example code:
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/users',
+  'https://jsonplaceholder.typicode.com/posts',
+  'https://jsonplaceholder.typicode.com/albums'
+];
+const getData = async function() {
+	try{
+	  const promises = urls.map(url => fetch(url));
+	      for await(let promise of promises) {
+	      	const data = await promise.json();
+	      	console.log(data);
+	      }
+
+	}catch(error) {
+		console.log('ooooooops', error);
+	}
+}
+
+**********************New Section**********************
+API - Application Programming Interface
+	- is a messenger that takes the request and tells
+	the system what to do.
+
+
+
+*********************New Section***********************
+Node.js
+
+3 kinds of modules:
+1. built-in modules 
+e.g. fs (filesystem)
+
+2. http
+
+3. nodemon (npm install nodemon --save-dev)
+-use for automating the terminal when working with node.js
+-this is for development purposes only.
+
+------------Building a Server---------------
+1. Create a file called server.js and go make nodemon listen to server.js by going to the package.json file
+
+------------Introduction to Express.js------------
+npm install express
+//to install express.js as local library for the project
+//this is a library that is more elegant than "http" built-in module use to listen request and sending response.
+
+sample starting code
+
+const express = require('express');
+
+const app = express(); //creating an instance of express
+
+//---------actions to be made to handle request and response -----------
+
+//example
+app.get('/', (req, res) => {
+	res.send('Hello');
+})
+
+app.listen(3000); // listening to any request from the browser
+
+-----------Express Middleware---------------
+app.use() //middleware function "use()"
+
+//inorder for the middleware to keep passing data through it needs to call 'next' function.
+
+sample:
+app.use((req, res, next) => {
+	console.log("Hello!");
+	next(); //this function allows to continue running code below in cascading pattern.
+});
+
+//it is something that receives ahead of time before we get to the routes, the request, modifies it and then passed the next function to keep it going.
+
+--------------Postman----------------
+- it makes requests to the server and see what we get back
+
+npm install body-parser
+//install this package to parse form data
+//this will be used with request.body
+//this is a middleware
+
+Some of body-parser functions:
+1. urlencoded({extended: false})
+2. json() //to parse json format data
+
+
+-----------RESTful API---------------
+- a REST API defines a set of functions which developers can perform requests and receive responses via a HTTP protocol such as GET, POST, PUT, DELETE.
+
+RESTful - something that follows the rules that everybody can agree on so that we have compatibility between different systems.
+
+-uses GET to receive a resource, PUT to change the state or update a resource, a POST that creates a resource, and a DELETE to remove it.
+
+- REST API's are called 'stateless' - meaning that calls can be made independently of one another and each call contains all the data necessary to complete itself successfully.
+----------
+http request is a verb and eveything after a slash is a noun.
+
+example:
+getProfile/profile
+----------
+
+Request's most used properties:
+--------------------------------
+1. query      //request.query
+-is what we get when we do a GET query (query string)
+
+2. body       //request.body
+-receives whatever the request sends in the body.
+
+3. header     //request.header
+-receives the headers from the request
+
+4. params 	  //request.params
+-use where you use the parameters of the URL.
+
+------------------------------
+Response's properties (some):
+------------------------------
+1. status     //request.status(404).send("not found")
+
+Case: What if we want to send static files like: HTML files, CSS files, and JavaScript files as a response?
+
+Steps:
+1. Create a folder called public
+2. Put all your files in here
+
+	In order to send static files with express it needs to use  a middleware "express.static(file location)"
+
+	use "__dirname" to get the name of the current directory.
+
+	example:
+	app.use(express.static(__dirname + '/public'));
+
+	//this will load all the files inside public directory
+
+-----------Node File System Module-----------
+FS Module - built into node.
+
+To use this module write the following:
+	const fs = require('fs');
+
+	fs - stands for File System
+
+-allows to access our file system.
+
+example code:
+-------------
+const fs = require('fs');
+
+---------------
+fs Properties:
+---------------
+1. readFile - it is used to read a file.
+		- is an asynchronous property of fs module.
+		 - it has callback function as a param.
+
+	example:
+
+	fs.readFile('./sample.txt', (err, data) => {
+		if(err) {
+			console.log('error');
+		}
+		console.log(data.toString('utf8'));
+	});
+
+	//toString('utf8') built-in function used to  convert data to string.
+
+2. readFileSync - is a synchronous property.
+	
+	example:
+
+	const file = fs.readFileSync('./sample.txt');
+	console.log('Sync', file.toString());
+
+3. appendFile - is used to append some strings/characters in a file.
+
+	example:
+
+	fs.appendFile('./sample.txt', ' Hola', err => {
+		if(err) {
+			console.log(err);
+		}
+	});
+
+4. writeFile - is used to create a new file.
+
+	example:
+
+	fs.writeFile('write.txt', 'Sample content', err => {
+		if(err) {
+			console.log(err);
+		}
+	});
+
+5. unlink - is used to delete a file.
+
+	example:
+
+	fs.unlink('./write.txt', err => {
+		if(err) {
+			console.log(err);
+		}
+		console.log('Inception');
+	});
+
+Use-Cases for this topic:
+--------------------------
+1. When reading an excel file like reading column in an excel and do some math (with some npm modules).
+
+2. You have an excel sheet with all emails and you want to send out an e-mail to 100 people on this list but
+you also don't want to be caught spamming people by the google filter.
+
+3. If you had a robot for example something similar to a file system instead of having reading from a file. 
+
+You can read from the robot, maybe through wireless or maybe through wires and get an input of some data that the robot has. 
+
+Like detecting a cat. If a robot detected a cat it send an e-mail out or send an output.
+
+
+From the exercise:
+-------------
+Keywords:
+-------------
+
+1. reduce() 
+- executes a reducer function (that you provide) on each element of the array, resulting in a single output value.
+
+example:
+const array1 = [1, 2, 3, 4];
+const reducer = (accumulator, currentValue) => accumulator + currentValue;
+
+// 1 + 2 + 3 + 4
+console.log(array1.reduce(reducer));
+// expected output: 10
+
+// 5 + 1 + 2 + 3 + 4
+console.log(array1.reduce(reducer, 5));
+// expected output: 15
+
+-------------------
+2. some() 
+- tests whether at least one element in the array passes the test implemented by the provided function. It returns a Boolean value. 
+
+example: 
+const array = [1, 2, 3, 4, 5];
+
+// checks whether an element is even
+const even = (element) => element % 2 === 0;
+
+console.log(array.some(even));
+// expected output: true
+
+*********************New Section***********************
+
+---------------Setting Up A Server----------------
+1. Create the project folder api named as project-api
+2. npm init
+3. npm install express
+4. npm install body-parser
+5. npm install nodemon --save-dev
+6. Create server.js file
+7. Modify the script on package.json to automate nodemon and server.js on npm start command.
+8. Setup express on server.js file
+9. Setup some route to check if everthing's running.
+10. Make a plan for your api (for your routes).
+
+	example:
+
+	Routes Plan:
+	---------
+	/ --> res, It is working.
+	/signin --> POST, failed/success.
+	/register --> POST, user.
+	/profile/:userId --> GET, user.
+	/image --> PUT
+
+---------------Storing User Passwords----------------
+Store password in hashes.
+
+1. npm install bcrypt-nodejs
+//to install an encryptor module to hash password.
+
+2. import this module
+
+3. load and compare hash
+
+	example code:
+
+	//insert this code in your register route
+	bcrypt.hash(password, null, null, function(err, hash) {
+	    // Store hash in your password DB.
+	});
+
+	//insert this code in your signin route
+	//Load hash from your password DB.
+	bcrypt.compare("bacon", hash, function(err, res) {
+	    //res == true
+	});
+
+	bcrypt.compare("veggies", hash, function(err, res) {
+	    //res = false
+	});
+
+---------------Connecting To Out Front-End----------------
+1. npm install cors
+//this package is used to enable to successfully connect to our server.
+//install this in your project folder api (server);
+//this is another type of middelware.
+
+2. use componentDidMount() hook to try to fetch the some data from the server (API) and print the result using console.log() to check if it is working.
+
+	example code:
+
+	componentDidMount() {
+	    fetch('http://localhost:3000/')
+	    .then(response => response.json())
+	    .then(data => console.log(data));
+	}
+
+3. Make sure that every function of each components should be written in their respective components to organized things. In other words that component will become a smart object because it needs to have its on state.
+
+To clear things up, check the file located at Desktop/smart-brain/src/components/SignInForm/SignInForm.js
+
+*********************New Section***********************
+---------------Introduction to Database----------------
+
+-it is a collection of data.
+Data - numbers, dates, password hashes, user information.
+
+- Databases allows to organize data in a way that is useful and makes data management easy and it is called database management systems or DBMS for short.
+
+-it is a collection of programs which allows to access databases and work with data and it also allows controlled access to database users.
+
+Relational Databases 
+---------------------
+schema - relation between tables and field. 
+-the schema must be clearly defined before any information can be added.
+
+How do server and database communicate?
+	-all relational databases use something called SQL. 
+
+	-SQL allows to communicate just like HTTP did between the frontend and the backend. With SQL we're able to communicate with the database and modify or get or update however we want.
+
+
+NoSQL / Non Relational Database
+--------------------------------
+examples: redis, riak, cassandra, couchDB, mongoDB, hypertable.
+
+NoSQL lets you build an application without having to define the schema first unlike a relational database. 
+
+	- are more like folders, just assembling related information of all types.
+
+MongoDB - is something called document oriented. It stores information as documents.
+
+	-it uses a language called MongoDB query not SQL.
+
+---------------Installing PostreSQL----------------
+1. Install PostgreSQL for windows
+2. Run the installer. Do not forget to disable antivirus.
+3. Locate the source folder of the installed app
+like this: C:\Program Files\PostgreSQL\12\bin
+4. Go to env
+5. Edit the path and paste the address before semi-colon (manually add it) and click ok.
+6. Go to cmd to test it and type psql -U [user]
+//by default the user is postgre. Hit enter and write up your password again and voila!
+7. Go to pgAdmin 4 and check your database there under: Servers/PostgreSQL 10/Databases/
+8. You will find your table under /Schemas
+
+-----CMD section----
+\c [database name] to connect to the database.
+	example:
+	\c test
+	\d test - this is to display the list of relation like this on the console:
+
+	         List of relations
+	 Schema | Name  | Type  |  Owner
+	--------+-------+-------+----------
+	 public | users | table | postgres
+
+---------------Creating a Table----------------
+CREATE TABLE (
+	COLUMN_NAME1 datatype,
+	COLUMN_NAME2 datatype,
+	COLUMN_NAME3 datatype,
+);
+---------------SQL Insert Into + Select----------------
+
+------INSERT INTO example query:
+
+INSERT INTO table_name (
+	COLUMN_NAME1,
+	COLUMN_NAME2,
+	COLUMN_NAME3
+) VALUES (
+	VALUE1,
+	VALUE2,
+	VALUE3
+);
+
+------SELECT example query:
+
+SELECT * FROM table_name;
+
+---------------SQL Alter Table + Update----------------
+
+------ALTER TABLE example query:
+ALTER TABLE users ADD COLUMN_NAME datatype;
+
+------UPDATE example query:
+
+UPDATE table_name
+SET COLUMN_NAME = value
+WHERE TARGET_COLUMN_NAME = target_value;
+
+
+---------------SQL Conditional Selections----------------
+
+------LIKE
+
+SELECT * FROM users WHERE name LIKE 'J%';
+//This will select all users with names start with 'J'.
+
+-------ORDER BY
+
+SELECT * FROM users ORDER BY score ASC/DESC;
+//This will select all users in an ASCENDING or DESCENDING ORDER.
+
+---------------SQL Functions----------------
+------AVG()
+
+SELECT AVG(score) FROM users;
+
+------COUNT()
+
+SELECT COUNT(score) FROM users;
+
+---------------Joining Tables Part 1----------------
+
+-----'serial' data type to auto increment a primary key.
+
+test=# CREATE TABLE login (
+test(# ID serial NOT NULL PRIMARY KEY,
+test(# secret VARCHAR (100) NOT NULL,
+test(# name text UNIQUE NOT NULL
+test(# );
+
+-----JOIN - to join tables together using primary-foreign key.
+
+test=# SELECT * FROM users JOIN login ON users.name = login.name;
+  name  | age |      email       | score | id | secret |  name
+--------+-----+------------------+-------+----+--------+--------
+ Harvey |  22 | harvey@gmail.com |   100 |  2 | DG78   | Harvey
+ Jayson |  21 | jayson@gmail.com |   100 |  1 | DG45   | Jayson
+(2 rows)
+
+-----DELETE - to delete a row from a table.
+
+DELETE FROM table_name WHERE COLUMN_NAME=value;
+
+-----DROP - to drop a table in a database.
+
+DROP TABLE table_name;
+
+*********************New Section*************************
+
+-----------------Setting Up Your Database (FINAL PROJECT)-------------
+
+1. Open cmd and connect to postgres
+2. Create database
+3. Create necessary tables 
+
+-----------------Connecting to the Database-------------
+
+1. Go to your server cmd 
+
+npm install knex
+//this will allow to connect to the database
+
+npm install pg
+//this will allow to connect to postgres
+
+2. Go to server.js file and import knex like the example below:
+
+	var knex = require('knex')({
+	  client: 'mysql',
+	  connection: {
+	    host : '127.0.0.1',
+	    user : 'your_database_user',
+	    password : 'your_database_password',
+	    database : 'myapp_test'
+	  }
+	});
+
+-----------------Registering A User Part 1-------------
+
+3. Testing
+
+3.1.	
+	//register route
+	db('users').insert({
+		name: name,
+		email: email,
+		joined: new Date()
+	})
+	.then(data => console.log(data));
+
+3.2. Open Postman to test by posting some data to the server.
+
+3.3. Check the server console if there is a response. If so, done!
+
+-----------------Registering A User Part 2-------------
+
+//chain returning() function to return back the new registered user as a response.
+
+	example code:
+
+	db('users')
+	.returning('*')
+	.insert({
+		name: name,
+		email: email,
+		joined: new Date()
+	})
+	.then(response => {
+		res.json(response);
+	})
+	.catch(err => {
+		res.status(400).json('Unable to register');
+	});
+
+**************************New Section**************************
+------------------Code Review--------------------
+1. fetch() should have a catch statement always to ensure that an error will be catched.
+
+2. In server.js separate each route to their own file inside a 'controller' folder and just export and import it so it can be used in the server.js file. 
+
+Moreoever, you can use dependency injection in server.js so the controllers can use the dependencies imported in the server's.
+
+
+------------------Security Review--------------------
+1. Make sure all your API should be placed in the backend so your API Key will not be displayed with the response in the browser.
+
+------------------Environmental Variables--------------------
+
+process.env
+
+//We use environmental variables in order to dynamically use ports and other addresses like database url so we do not need to hard code it everytime we deploy our app to a new environment.
+
+
+------------------Deploying To Horoku (Part 1)--------------------
+
+Example Well-known Deployment Services:
+
+1. Amazon Web Services
+2. DigitalOcean
+3. Heroku - offers free tier for demo purposes
+4. Engine Yard
+
+//this are just computers managed by companies. They allow you to run your files on their computer and in return we pay them.
+
+//They make sure the computers are running really really fast.
+//And if we're running something like Postgres or database, they're going to try their best to make sure that it doesn't go down or there's backups.
+
+
+---Pushing Project files to Git (additional)---
+
+Copy the link in the input right beneath the title, it should look something like this: https://github.com/mindplace/test-repo.git This is the web address that your local folder will use to push its contents to the remote folder on Github.
+
+Go back to your project in the terminal/command line.
+
+In your terminal/command line, type git remote add origin [copied web address]
+
+Example: git remote add origin https://github.com/mindplace/test-repo.git
+
+Push your branch to Github: git push origin master
+
+----------
+If the repository had already files, then just clone and copy the address.
+
+1. In your terminal/command line, type git clone add [copied web address]
+2. Copy and paste your file into the clone project from github.
+3. In your terminal again, type git status
+4. Type git add * to add all the new file to be committed.
+5. Type git commit -m "Your message"
+6. Type git push
+7. Done!
+
+---Getting Started with Heroku with Git---
+1. Download Heroku for windows
+2. On cmd, type heroku create
+3. Type git push heroku master 
+//for existing heroku app
+	type heroku git:remote -a [name of the app]
+
+Note:
+--------
+Heroku doesn’t deploy your dev dependencies. This sounds like a good thing. But when you develop Node.js with Nodemon and your package.json uses nodemon as a start script, things can go haywire with Heroku.
+
+Easy fix: change your entry in package.json back from nodemon to node.
+
+4. On the front-end side of the app, change all the addresses to the new application address generated by heroku
+	example code:
+
+	FROM:
+
+	fetch('http://localhost:3001/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+
+	TO:
+
+	fetch('https://blooming-woodland-39722.herokuapp.com/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+
+------------------Deploying To Horoku (Part 2)--------------------
+1. Go to https://data.heroku.com/ to create a database on heroku.
+2. Choose Heroku Postgres.
+3. Click "Install Heroku Postgres".
+4. Set the provision to the name of the app that the heroku has given.
+5. Click "Provision Addon".
+4. On the cmd/terminal, type  heroku addons to confirm if you already provision your app.
+5. To see if your database is running on legacy infrastructure, type 'heroku pg:info'.
+6. To establish a psql session with your remote database, type heroku pg:psql.
+7. Create your tables.
+8. In your server.js change the value of 'connection' property shown below.
+
+	example code:
+
+	FROM:
+
+	const db = knex({
+	  client: 'pg',
+	  connection: {
+	    host : '127.0.0.1'
+	    user : 'postgres',
+	    password : '',
+	    database : 'smart_brain'
+	  }
+	});
+
+	TO:
+
+	const db = knex({
+	  client: 'pg',
+	  connection: {
+	    connectionString : process.env.DATABASE_URL,
+	  	ssl: true,
+	  }
+	});
+
+------------------Deploying To Horoku (Part 4)--------------------
+----Adding the front-end project to Heroku------
+1. In heroku dashboard, click New and choose 'create new app'.
+2. Set the application name.
+3. On cmd/terminal, type 'heroku login'.
+4. Type 'heroku git:remote -a [name a the app given on step 1]'.
+5. Type 'git add .'
+6. Type 'git commit -m "deploy" '.
+7. Type 'git push heroku master'.
+8. Type 'heroku open' to run the app on the browser.
+
+Note:
+You can add your custom environmental variable on:
+
+	heroku dashboard->application->setting->reveal config vars->add your env variable here.
+
+	//you can use this variable using process.env.[your variable name]
+	//this is useful especially for API and other confidential info that should not be  displayed on the users.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
